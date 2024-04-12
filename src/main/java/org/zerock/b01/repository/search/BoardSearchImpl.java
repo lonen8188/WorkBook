@@ -1,6 +1,7 @@
 package org.zerock.b01.repository.search;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.JPQLQuery;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -8,12 +9,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport;
 import org.zerock.b01.domain.Board;
 import org.zerock.b01.domain.QBoard;
+import org.zerock.b01.domain.QReply;
+import org.zerock.b01.dto.BoardListReplyCountDTO;
 
 import java.util.List;
 
 public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardSearch {
 
-    public BoardSearchImpl(){
+    public BoardSearchImpl() {
         super(Board.class);
     }
 
@@ -66,13 +69,13 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
         QBoard board = QBoard.board;
         JPQLQuery<Board> query = from(board);
 
-        if( (types != null && types.length > 0) && keyword != null ){ //검색 조건과 키워드가 있다면
+        if ((types != null && types.length > 0) && keyword != null) { //검색 조건과 키워드가 있다면
 
             BooleanBuilder booleanBuilder = new BooleanBuilder(); // (
 
-            for(String type: types){
+            for (String type : types) {
 
-                switch (type){
+                switch (type) {
                     case "t":
                         booleanBuilder.or(board.title.contains(keyword));
                         break;
@@ -102,5 +105,162 @@ public class BoardSearchImpl extends QuerydslRepositorySupport implements BoardS
 
     }
 
+    @Override // 542 추가 (댓글 개수 처리용)
+    public Page<BoardListReplyCountDTO> searchWithReplyCount(String[] types, String keyword, Pageable pageable) {
+        QBoard board = QBoard.board;
+        QReply reply = QReply.reply; // q도메인 객체 생성
 
+        JPQLQuery<Board> query = from(board); // select ??? from board ~~~~
+        query.leftJoin(reply).on(reply.board.eq(board)); // leftJoin()엔 on()을 이용
+        //    select
+        //        b1_0.bno,
+        //        b1_0.title,
+        //        b1_0.writer,
+        //        b1_0.regdate,
+        //        count(r1_0.rno)
+        //    from
+        //        board b1_0
+        //    left join
+        //        reply r1_0
+        //            on r1_0.board_bno=b1_0.bno
+
+        query.groupBy(board);  // 게시물당 처리가 필요함.
+
+        //    group by
+        //        b1_0.bno,
+        //        b1_0.content,
+        //        b1_0.moddate,
+        //        b1_0.regdate,
+        //        b1_0.title,
+        //        b1_0.writer
+
+        if ((types != null && types.length > 0) && keyword != null) {
+
+            BooleanBuilder booleanBuilder = new BooleanBuilder(); // (
+
+            for (String type : types) {
+
+                switch (type) {
+                    case "t":
+                        booleanBuilder.or(board.title.contains(keyword));
+                        break;
+                    case "c":
+                        booleanBuilder.or(board.content.contains(keyword));
+                        break;
+                    case "w":
+                        booleanBuilder.or(board.writer.contains(keyword));
+                        break;
+                }
+            }//end for
+            query.where(booleanBuilder);
+
+            //    where
+            //        (
+            //            b1_0.title like ? escape '!'
+            //            or b1_0.content like ? escape '!'
+            //            or b1_0.writer like ? escape '!'
+            //        )
+            //        and b1_0.bno>?
+
+        }
+
+        //bno > 0
+        query.where(board.bno.gt(0L));
+
+        // Projections.bean JPQL의 결과를 바로 DTO로 처리하는 기능
+        JPQLQuery<BoardListReplyCountDTO> dtoQuery = query.select(Projections.bean(BoardListReplyCountDTO.class,
+                board.bno,
+                board.title,
+                board.writer,
+                board.regDate,
+                reply.count().as("replyCount")
+        ));
+
+        this.getQuerydsl().applyPagination(pageable, dtoQuery);
+
+        //    order by
+        //        b1_0.bno desc limit ?,
+        //        ?
+        //
+
+        List<BoardListReplyCountDTO> dtoList = dtoQuery.fetch();
+
+        long count = dtoQuery.fetchCount();
+
+        return new PageImpl<>(dtoList, pageable, count);
+
+
+    }
+
+//    @Override
+//    public Page<BoardListAllDTO> searchWithAll(String[] types, String keyword, Pageable pageable) {
+//
+//        QBoard board = QBoard.board;
+//        QReply reply = QReply.reply;
+//
+//        JPQLQuery<Board> boardJPQLQuery = from(board);
+//        boardJPQLQuery.leftJoin(reply).on(reply.board.eq(board)); //left join
+//
+//        if ((types != null && types.length > 0) && keyword != null) {
+//
+//            BooleanBuilder booleanBuilder = new BooleanBuilder(); // (
+//
+//            for (String type : types) {
+//
+//                switch (type) {
+//                    case "t":
+//                        booleanBuilder.or(board.title.contains(keyword));
+//                        break;
+//                    case "c":
+//                        booleanBuilder.or(board.content.contains(keyword));
+//                        break;
+//                    case "w":
+//                        booleanBuilder.or(board.writer.contains(keyword));
+//                        break;
+//                }
+//            }//end for
+//            boardJPQLQuery.where(booleanBuilder);
+//        }
+//
+//        boardJPQLQuery.groupBy(board);
+//
+//        getQuerydsl().applyPagination(pageable, boardJPQLQuery); //paging
+//
+//
+//        JPQLQuery<Tuple> tupleJPQLQuery = boardJPQLQuery.select(board, reply.countDistinct());
+//
+//        List<Tuple> tupleList = tupleJPQLQuery.fetch();
+//
+//        List<BoardListAllDTO> dtoList = tupleList.stream().map(tuple -> {
+//
+//            Board board1 = (Board) tuple.get(board);
+//            long replyCount = tuple.get(1, Long.class);
+//
+//            BoardListAllDTO dto = BoardListAllDTO.builder()
+//                    .bno(board1.getBno())
+//                    .title(board1.getTitle())
+//                    .writer(board1.getWriter())
+//                    .regDate(board1.getRegDate())
+//                    .replyCount(replyCount)
+//                    .build();
+//
+//            //BoardImage를 BoardImageDTO 처리할 부분
+//            List<BoardImageDTO> imageDTOS = board1.getImageSet().stream().sorted()
+//                    .map(boardImage -> BoardImageDTO.builder()
+//                            .uuid(boardImage.getUuid())
+//                            .fileName(boardImage.getFileName())
+//                            .ord(boardImage.getOrd())
+//                            .build()
+//                    ).collect(Collectors.toList());
+//
+//            dto.setBoardImages(imageDTOS);
+//
+//            return dto;
+//        }).collect(Collectors.toList());
+//
+//        long totalCount = boardJPQLQuery.fetchCount();
+//
+//
+//        return new PageImpl<>(dtoList, pageable, totalCount);
+//    }
 }

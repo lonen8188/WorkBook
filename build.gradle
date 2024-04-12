@@ -57,6 +57,15 @@ dependencies {
     // 타입리프 용 코드
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
+    // json 테스트용 -> postman 사용해도 무관 -> 부트3에서 작동 안함
+    //     https://mvnrepository.com/artifact/io.springfox/springfox-swagger-ui
+    //     implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+    //     https://mvnrepository.com/artifact/io.springfox/springfox-boot-starter
+    //     implementation group: 'io.springfox', name: 'springfox-boot-starter', version: '3.0.0'
+    // 오픈소스 사용으로 변경
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+
 
 }
 

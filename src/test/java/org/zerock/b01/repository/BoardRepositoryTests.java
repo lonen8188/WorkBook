@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.zerock.b01.domain.Board;
+import org.zerock.b01.dto.BoardListReplyCountDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -145,6 +146,174 @@ public class BoardRepositoryTests {
 
         result.getContent().forEach(board -> log.info(board));
     }
+
+    // 댓글 카운트 처리 테스트 545
+    @Test
+    public void testSearchReplyCount() {
+
+        String[] types = {"t","c","w"};
+
+        String keyword = "1";
+
+        Pageable pageable = PageRequest.of(0,10, Sort.by("bno").descending());
+
+        Page<BoardListReplyCountDTO> result = boardRepository.searchWithReplyCount(types, keyword, pageable );
+
+        //total pages
+        log.info(result.getTotalPages());
+        //pag size
+        log.info(result.getSize());
+        //pageNumber
+        log.info(result.getNumber());
+        //prev next
+        log.info(result.hasPrevious() +": " + result.hasNext());
+
+        result.getContent().forEach(board -> log.info(board));
+
+        //Hibernate:
+        //    select
+        //        count(distinct b1_0.bno)
+        //    from
+        //        board b1_0
+        //    left join
+        //        reply r1_0
+        //            on r1_0.board_bno=b1_0.bno
+        //    where
+        //        (
+        //            b1_0.title like ? escape '!'
+        //            or b1_0.content like ? escape '!'
+        //            or b1_0.writer like ? escape '!'
+        //        )
+        //        and b1_0.bno>?
+        //2024-04-12T14:25:03.556+09:00  INFO 7044 --- [    Test worker] o.z.b01.repository.BoardRepositoryTests  : 2
+        //2024-04-12T14:25:03.558+09:00  INFO 7044 --- [    Test worker] o.z.b01.repository.BoardRepositoryTests  : 10
+        //2024-04-12T14:25:03.558+09:00  INFO 7044 --- [    Test worker] o.z.b01.repository.BoardRepositoryTests  : 0
+        //2024-04-12T14:25:03.574+09:00  INFO 7044 --- [    Test worker] o.z.b01.repository.BoardRepositoryTests  : false: true
+        //2024-04-12T14:25:03.589+09:00  INFO 7044 --- [    Test worker] o.z.b01.repository.BoardRepositoryTests  :
+        // BoardListReplyCountDTO(bno=100, title=title...10011, writer=user0, regDate=2024-04-09T17:38:21.909360, replyCount=2)
+        //                                                                                                        100번 개시물에 댓글 수 체크
+    }
+
+//    @Test
+//    public void testInsertWithImages() {
+//
+//        Board board = Board.builder()
+//                .title("Image Test")
+//                .content("첨부파일 테스트")
+//                .writer("tester")
+//                .build();
+//
+//        for (int i = 0; i < 3; i++) {
+//
+//            board.addImage(UUID.randomUUID().toString(), "file"+i+".jpg");
+//
+//        }//end for
+//
+//        boardRepository.save(board);
+//    }
+//
+//    //    @Test
+////    public void testReadWithImages() {
+////
+////        //반드시 존재하는 bno로 확인
+////        Optional<Board> result = boardRepository.findById(1L);
+////
+////        Board board = result.orElseThrow();
+////
+////        log.info(board);
+////        log.info("--------------------");
+////        log.info(board.getImageSet());
+////    }
+//    @Test
+//    public void testReadWithImages() {
+//
+//        //반드시 존재하는 bno로 확인
+//        Optional<Board> result = boardRepository.findByIdWithImages(1L);
+//
+//        Board board = result.orElseThrow();
+//
+//        log.info(board);
+//        log.info("--------------------");
+//        for (BoardImage boardImage : board.getImageSet()) {
+//            log.info(boardImage);
+//        }
+//    }
+//
+//    @Transactional
+//    @Commit
+//    @Test
+//    public void testModifyImages() {
+//
+//        Optional<Board> result = boardRepository.findByIdWithImages(1L);
+//
+//        Board board = result.orElseThrow();
+//
+//        //기존의 첨부파일들은 삭제
+//        board.clearImages();
+//
+//        //새로운 첨부파일들
+//        for (int i = 0; i < 2; i++) {
+//
+//            board.addImage(UUID.randomUUID().toString(), "updatefile"+i+".jpg");
+//        }
+//
+//        boardRepository.save(board);
+//
+//    }
+//
+//    @Test
+//    @Transactional
+//    @Commit
+//    public void testRemoveAll() {
+//
+//        Long bno = 1L;
+//
+//        replyRepository.deleteByBoard_Bno(bno);
+//
+//        boardRepository.deleteById(bno);
+//
+//    }
+//
+//    @Test
+//    public void testInsertAll() {
+//
+//        for (int i = 1; i <= 100; i++) {
+//
+//            Board board  = Board.builder()
+//                    .title("Title.."+i)
+//                    .content("Content.." + i)
+//                    .writer("writer.." + i)
+//                    .build();
+//
+//            for (int j = 0; j < 3; j++) {
+//
+//                if(i % 5 == 0){
+//                    continue;
+//                }
+//                board.addImage(UUID.randomUUID().toString(),i+"file"+j+".jpg");
+//            }
+//            boardRepository.save(board);
+//
+//        }//end for
+//    }
+//
+//    @Transactional
+//    @Test
+//    public void testSearchImageReplyCount() {
+//
+//        Pageable pageable = PageRequest.of(0,10,Sort.by("bno").descending());
+//
+//        //boardRepository.searchWithAll(null, null,pageable);
+//
+//        Page<BoardListAllDTO> result = boardRepository.searchWithAll(null,null,pageable);
+//
+//        log.info("---------------------------");
+//        log.info(result.getTotalElements());
+//
+//        result.getContent().forEach(boardListAllDTO -> log.info(boardListAllDTO));
+//
+//
+//    }
 
 
 
