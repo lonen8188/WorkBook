@@ -37,7 +37,7 @@ function doA( callback ) { result1 = callback( result1 ) }
 
 자바 스크립트에서는 Promise라는 개념을 도입해서 비동기 호출을 동기화된 방식으로 작성할 수 있는 문법적인 장치를 만들어 줌 -> Axios
 
-https://axios-http.com/kr/docs/intro
+     https://axios-http.com/kr/docs/intro
 
 Axios는 node.js와 브라우저를 위한 Promise 기반 HTTP 클라이언트 입니다.
 
@@ -45,7 +45,7 @@ Axios는 node.js와 브라우저를 위한 Promise 기반 HTTP 클라이언트 �
 
 서버 사이드에서는 네이티브 node.js의 http 모듈을 사용하고, 클라이언트(브라우저)에서는 XMLHttpRequests를 사용합니다.
 
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> cdn으로 활성화 시킴
+     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> cdn으로 활성화 시킴
 
 Axios를 이용하면 Ajax를 호출하는 코드를 작성할 때 마치 동기화된 방식 처럼 작성 할 수 있어 자바스크립트 기반으로 하는 프레임 워크(Angular)나 React, Vue에서 많이 사용됨
 
