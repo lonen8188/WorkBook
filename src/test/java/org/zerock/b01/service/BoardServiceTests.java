@@ -122,7 +122,7 @@ public class BoardServiceTests {
     @Test
     public void testReadAll() {
 
-        Long bno = 101L;
+        Long bno = 107L;
         //Long bno = 204L;
 
         BoardDTO boardDTO = boardService.readOne(bno);

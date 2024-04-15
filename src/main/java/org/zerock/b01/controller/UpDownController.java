@@ -67,10 +67,10 @@ public class UpDownController {
     @Operation(summary =  "POST 방식으로 파일 등록")
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public List<UploadResultDTO> upload(
-//            @Parameter(
-//                    description = "Files to be uploaded",
-//                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
-//            )
+            @Parameter(
+                    description = "Files to be uploaded",
+                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE)
+            )  // 파일로 업로드 안되 추가
             UploadFileDTO uploadFileDTO){
 
         log.info(uploadFileDTO);
