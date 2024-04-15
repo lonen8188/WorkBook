@@ -1,38 +1,30 @@
 package org.zerock.b01.dto;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BoardDTO {
+@Builder
+public class BoardListAllDTO { /// Board와 이미지, 댓글 개수를 모두 반영할 수 있는 DTO
 
     private Long bno;
 
-    @NotEmpty
-    @Size(min = 3, max = 100)
     private String title;
 
-    @NotEmpty
-    private String content;
-
-    @NotEmpty
     private String writer;
 
     private LocalDateTime regDate;
 
-    private LocalDateTime modDate;
+    private Long replyCount;
 
-    //첨부파일의 이름들 640 추가
-    private List<String> fileNames;
+
+    private List<BoardImageDTO> boardImages;
 
 }
