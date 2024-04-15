@@ -32,7 +32,7 @@ public class ReplyServiceImpl implements ReplyService{
         // 댓글 등록 ReplyDTO를 받아 save 처리후 rno를 리턴한다.
         Reply reply = modelMapper.map(replyDTO, Reply.class);
         Long rno = replyRepository.save(reply).getRno();
-
+        System.out.println(replyDTO.getRno());
         return rno;
     }
 

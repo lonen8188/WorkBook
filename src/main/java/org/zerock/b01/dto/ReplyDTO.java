@@ -27,7 +27,7 @@ public class ReplyDTO {
     @NotEmpty
     private String replyer;
 
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss") // 581 추가
     private LocalDateTime regDate;
 
     @JsonIgnore

@@ -5,8 +5,11 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+//@EnableJpaAuditing
 @Configuration // 스프링의 설정 클래스임을 명시
+@EnableJpaAuditing
 public class RootConfig {
 
     // 모델 영역에 데이터 매핑용
@@ -16,7 +19,7 @@ public class RootConfig {
         modelMapper.getConfiguration()  // 기본 환경설정을 가져옴.
                 .setFieldMatchingEnabled(true) // private 인 필드도 맵핑
                 .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE) //Private 필드 매핑
-                .setMatchingStrategy(MatchingStrategies.STRICT);
+                .setMatchingStrategy(MatchingStrategies.LOOSE);
                 //MatchingStrategies.STANDARD(default)
                     //모든 destination 객체의 property 토큰들은 매칭 되어야 한다.
                     //모든 source 객체의 property들은 하나 이상의 토큰이 매칭되어야 한다.
