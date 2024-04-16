@@ -16,22 +16,22 @@ import java.net.URLEncoder;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PageRequestDTO {
-    // 페이징 관련 정보(page/size) + 검색의 종류(tcw), 키워드(값)을 같이 처리함.
-    @Builder.Default
-    private int page = 1;  // 기본 1 페이지
 
     @Builder.Default
-    private int size = 10; // 10개 객체
+    private int page = 1;
+
+    @Builder.Default
+    private int size = 10;
 
     private String type; // 검색의 종류 t,c, w, tc,tw, twc
 
-    private String keyword; // 검색 단어
+    private String keyword;
 
-    public String[] getTypes(){ // 검색 조건들을 BoardRepository에서 String[] 배열로 처리하기 때문에
+    public String[] getTypes(){
         if(type == null || type.isEmpty()){
             return null;
         }
-        return type.split(""); // type이라는 문자열을 배열로 반환
+        return type.split("");
     }
 
     public Pageable getPageable(String...props) {

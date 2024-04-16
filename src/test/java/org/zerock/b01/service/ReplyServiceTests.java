@@ -1,4 +1,5 @@
 package org.zerock.b01.service;
+
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +23,6 @@ public class ReplyServiceTests {
                 .build();
 
         log.info(replyService.register(replyDTO));
-        //    Hibernate:
-        //    insert
-        //            into
-        //    reply
-        //            (board_bno,moddate,regdate,reply_text,replyer)
-        //    values
-        //            (?,?,?,?,?)
-        //2024-04-12T14:56:10.698+09:00  INFO 10412 --- [    Test worker] o.zerock.b01.service.ReplyServiceTests   : 4
     }
-
 
 }

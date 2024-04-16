@@ -10,9 +10,8 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 
 import java.io.IOException;
 
-@Log4j2  // 717 추가 403에러는 서버에서 사용자의 요청을 거부했다는 의미로 사용자가 로그인 되었지만 해당 작업을 수행할 수는 없는 경우
+@Log4j2
 public class Custom403Handler implements AccessDeniedHandler {
-    // 시큐리티 권한에 대한 강제 접근시 처리하는 핸들러 -> CustomSecurityConfig에서 활성화
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
@@ -20,7 +19,7 @@ public class Custom403Handler implements AccessDeniedHandler {
 
         response.setStatus(HttpStatus.FORBIDDEN.value());
 
-        //JSON 요청이었는지 확인 -> JSON 데이터를 만들어 전송
+        //JSON 요청이었는지 확인
         String contentType = request.getHeader("Content-Type");
 
         if (contentType == null) {
@@ -34,13 +33,12 @@ public class Custom403Handler implements AccessDeniedHandler {
 
         log.info("isJOSN: " + jsonRequest);
 
-        //일반 request -> form 태그의 요청이 403인 경우 로그인 페이지로 이동할 때 ACCESS_DENIED
+        //일반 request
         if (!jsonRequest) {
 
             response.sendRedirect("/member/login?error=ACCESS_DENIED");
         }
 
     }
-
 
 }

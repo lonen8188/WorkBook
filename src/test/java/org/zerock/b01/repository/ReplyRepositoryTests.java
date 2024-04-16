@@ -12,9 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.zerock.b01.domain.Board;
 import org.zerock.b01.domain.Reply;
 
+
+
 @SpringBootTest
 @Log4j2
 public class ReplyRepositoryTests {
+
     @Autowired
     private ReplyRepository replyRepository;
 
@@ -22,7 +25,7 @@ public class ReplyRepositoryTests {
     public void testInsert() {
 
         //실제 DB에 있는 bno
-        Long bno  = 100L;
+        Long bno  = 1L;
 
         Board board = Board.builder().bno(bno).build();
 
@@ -33,16 +36,10 @@ public class ReplyRepositoryTests {
                 .build();
 
         replyRepository.save(reply);
-        //insert
-        //    into
-        //        reply
-        //        (board_bno,moddate,regdate,reply_text,replyer)
-        //    values
-        //        (?,?,?,?,?)
 
     }
 
-    @Transactional  // 2번의 쿼리로 동작할 때 no Session 이 뜸
+    @Transactional
     @Test
     public void testBoardReplies() {
 
@@ -55,24 +52,6 @@ public class ReplyRepositoryTests {
         result.getContent().forEach(reply -> {
             log.info(reply);
         });
-        //Hibernate:
-        //    select
-        //        r1_0.rno,
-        //        r1_0.board_bno,
-        //        r1_0.moddate,
-        //        r1_0.regdate,
-        //        r1_0.reply_text,
-        //        r1_0.replyer
-        //    from
-        //        reply r1_0
-        //    where
-        //        r1_0.board_bno=?
-        //    order by
-        //        r1_0.rno desc limit ?,
-        //        ?
-        //2024-04-12T13:18:20.255+09:00  INFO 8284 --- [    Test worker] o.z.b01.repository.ReplyRepositoryTests  : Reply(rno=3, replyText=댓글....., replyer=replyer1)
-        //2024-04-12T13:18:20.257+09:00  INFO 8284 --- [    Test worker] o.z.b01.repository.ReplyRepositoryTests  : Reply(rno=2, replyText=댓글....., replyer=replyer1)
     }
-
 
 }

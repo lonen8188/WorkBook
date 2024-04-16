@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UploadResultDTO { // 여러개의 파일이 업로드되면 결과도 여러개 발생 하게 되고 여러 정보로 반환해야 함
-    // 별도의 dto를 구성하여 객체로 반환 처리 용
+public class UploadResultDTO {
 
     private String uuid;
 
@@ -19,7 +18,7 @@ public class UploadResultDTO { // 여러개의 파일이 업로드되면 결과�
     private boolean img;
 
     public String getLink(){
-        // 차후에 json 처리 될 때 link라는 속성으로 자동 처리
+
         if(img){
             return "s_"+ uuid +"_"+fileName; //이미지인 경우 섬네일
         }else {

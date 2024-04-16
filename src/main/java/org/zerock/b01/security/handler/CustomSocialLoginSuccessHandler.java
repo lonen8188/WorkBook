@@ -1,5 +1,6 @@
 package org.zerock.b01.security.handler;
 
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
@@ -16,14 +17,14 @@ import java.io.IOException;
 @Log4j2
 @RequiredArgsConstructor
 public class CustomSocialLoginSuccessHandler implements AuthenticationSuccessHandler {
-    // 카카오톡 회원가입 후 암호가 1111 임으로 강제로 변경 하는 코드 
+
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
         log.info("----------------------------------------------------------");
-        log.info("CustomLoginSuccessHandler.onAuthenticationSuccess() 메서드 실행 ..........");
+        log.info("CustomLoginSuccessHandler onAuthenticationSuccess ..........");
         log.info(authentication.getPrincipal());
 
         MemberSecurityDTO memberSecurityDTO = (MemberSecurityDTO) authentication.getPrincipal();
@@ -46,5 +47,4 @@ public class CustomSocialLoginSuccessHandler implements AuthenticationSuccessHan
             response.sendRedirect("/board/list");
         }
     }
-
 }

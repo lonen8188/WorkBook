@@ -12,17 +12,11 @@ public interface BoardSearch {
 
     Page<Board> searchAll(String[] types, String keyword, Pageable pageable);
 
-    //댓글 개수 처리용 리스트 (Querydsl용)
-    Page<BoardListReplyCountDTO> searchWithReplyCount(String[] types,  // 검색조건
-                                                      String keyword,   // 검색어
-                                                      Pageable pageable); // 페이징
-
-//    Page<BoardListReplyCountDTO> searchWithAll(String[] types, // 634 교체 BoardListAllDTO
-//                                        String keyword,
-//                                        Pageable pageable);  // 628 추가
-
+    Page<BoardListReplyCountDTO> searchWithReplyCount(String[] types,
+                                                      String keyword,
+                                                      Pageable pageable);
 
     Page<BoardListAllDTO> searchWithAll(String[] types,
-                                            String keyword,
-                                            Pageable pageable);  // 628 추가
+                                        String keyword,
+                                        Pageable pageable);
 }

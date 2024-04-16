@@ -14,23 +14,20 @@ import org.zerock.b01.repository.MemberRepository;
 @Log4j2
 @Service
 @RequiredArgsConstructor
+public class MemberServiceImpl implements MemberService{
 
-public class MemberServiceImpl implements MemberService {
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper;  // 모델 객체 처리용
+    private final MemberRepository memberRepository;
 
-    private final MemberRepository memberRepository; // 회원가입
-
-    private final PasswordEncoder passwordEncoder; // 암호 인코더
-
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void join(MemberJoinDTO memberJoinDTO) throws MidExistException {
+    public void join(MemberJoinDTO memberJoinDTO) throws MidExistException{
 
         String mid = memberJoinDTO.getMid();
 
         boolean exist = memberRepository.existsById(mid);
-        //단순히 존재 여부만 확인하면 되므로, existBy를 쓰는 것이 메서드 명으로 유추했을 때도, 리턴타입(boolean)
 
         if(exist){
             throw new MidExistException();
@@ -41,11 +38,10 @@ public class MemberServiceImpl implements MemberService {
         member.addRole(MemberRole.USER);
 
         log.info("=======================");
-        log.info(member);  // 회원 객체
-        log.info(member.getRoleSet()); // 룰 적용
+        log.info(member);
+        log.info(member.getRoleSet());
 
         memberRepository.save(member);
 
     }
-
 }

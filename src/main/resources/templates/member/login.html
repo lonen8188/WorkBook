@@ -20,12 +20,11 @@
             LOGIN Page
         </div>
         <div class="card-body">
-            <!--  701 로그아웃 추가  -->
             <th:block th:if="${param.logout != null}">
                 <h1>Logout........</h1>
             </th:block>
-                                                        <!--  701        th:if="${param.logout == null}"-->
-            <form id="registerForm" action="/member/login" method="post" th:if="${param.logout == null}">
+
+            <form id="registerForm" action="/member/login" method="post">
                 <div class="input-group mb-3">
                     <span class="input-group-text">아이디</span>
                     <input type="text" name="username" class="form-control" placeholder="USER ID">
@@ -34,7 +33,6 @@
                     <span class="input-group-text">패스워드</span>
                     <input type="text" name="password" class="form-control" placeholder="PASSWORD">
                 </div>
-                <!-- 705 추가 remember-me   -->
                 <div class="input-group mb-3 ">
                     <input class="form-check-input" type="checkbox" name="remember-me">
                     <label class="form-check-label">
@@ -48,7 +46,6 @@
                 </div>
             </form>
             <a href="/oauth2/authorization/kakao">KAKAO</a>
-            <!-- 747 추가            -->
         </div><!--end card body-->
     </div><!--end card-->
 </div>

@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoardListAllDTO { /// Board와 이미지, 댓글 개수를 모두 반영할 수 있는 DTO
+public class BoardListAllDTO {
 
     private Long bno;
 

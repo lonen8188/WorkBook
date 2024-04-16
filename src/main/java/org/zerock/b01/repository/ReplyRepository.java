@@ -10,9 +10,6 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
     @Query("select r from Reply r where r.board.bno = :bno")
     Page<Reply> listOfBoard(Long bno, Pageable pageable);
-    // 페이징 처리돠는 댓글 리스트
 
     void deleteByBoard_Bno(Long bno);
-    // 게시물 번호로 지워지는 댓글
-
 }

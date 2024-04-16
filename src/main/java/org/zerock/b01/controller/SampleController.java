@@ -26,25 +26,23 @@ public class SampleController {
     }
 
     @GetMapping("/ex/ex1")
-    public void ex1(Model model) {
+    public void ex1(Model model){
 
-        List<String> list = Arrays.asList("AAA", "BBB", "CCC", "DDD");
+        List<String> list = Arrays.asList("AAA","BBB","CCC","DDD");
 
         model.addAttribute("list", list);
 
     }
 
     class SampleDTO {
-        private String p1, p2, p3; // 필드 3개 선언
+        private String p1,p2,p3;
 
         public String getP1() {
             return p1;
-        } //게터 3개 선언
-
+        }
         public String getP2() {
             return p2;
         }
-
         public String getP3() {
             return p3;
         }
@@ -55,30 +53,31 @@ public class SampleController {
 
         log.info("ex/ex2................");
 
-        List<String> strList = IntStream.range(1, 10)
-                .mapToObj(i -> "Data" + i)
-                .collect(Collectors.toList()); // Data1 ~ Data10
+        List<String> strList = IntStream.range(1,10)
+                .mapToObj(i -> "Data"+i)
+                .collect(Collectors.toList());
 
-        model.addAttribute("list", strList); // list 변수에 List<String> 모델에 담음
+        model.addAttribute("list", strList);
 
         Map<String, String> map = new HashMap<>();
-        map.put("A", "AAAA");
-        map.put("B", "BBBB");
+        map.put("A","AAAA");
+        map.put("B","BBBB");
 
-        model.addAttribute("map", map); // map 변수에 Map<String, String> map k,v 전달
+        model.addAttribute("map", map);
 
         SampleDTO sampleDTO = new SampleDTO();
-        sampleDTO.p1 = "Value -- p1";
-        sampleDTO.p2 = "Value -- p2";
-        sampleDTO.p3 = "Value -- p3";
+        sampleDTO.p1 ="Value -- p1";
+        sampleDTO.p2 ="Value -- p2";
+        sampleDTO.p3 ="Value -- p3";
 
-        model.addAttribute("dto", sampleDTO); // dto 변수에  SampleDTO (Value -- p1 ~ 3 값 저장)
+        model.addAttribute("dto", sampleDTO);
     }
 
     @GetMapping("/ex/ex3")
     public void ex3(Model model) {
 
-        model.addAttribute("arr", new String[]{"AAA", "BBB", "CCC"});
+        model.addAttribute("arr", new String[]{"AAA","BBB","CCC"});
 
     }
+
 }

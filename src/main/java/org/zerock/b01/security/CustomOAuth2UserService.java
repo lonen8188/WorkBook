@@ -1,5 +1,6 @@
 package org.zerock.b01.security;
 
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,17 +27,17 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final MemberRepository memberRepository; // 755 추가
-    private final PasswordEncoder passwordEncoder; // 755 추가
-
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException{
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 
-        log.info("CustomOAuth2UserService.loadUser() 메서드 실행");
+        log.info("userRequest....");
         log.info(userRequest);
 
-        // 750 추가
+        log.info("oauth2 user.....................................");
+
         ClientRegistration clientRegistration = userRequest.getClientRegistration();
         String clientName = clientRegistration.getClientName();
 
@@ -44,16 +45,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         Map<String, Object> paramMap = oAuth2User.getAttributes();
 
-//   751 제거      paramMap.forEach((k,v) -> {
-//            log.info("----------------------------------");
-//            log.info(k + " : " + v);
-//        });
-// 751 추가
         String email = null;
 
         switch (clientName){
             case "kakao":
-                email = getKakaoEmail(paramMap);  // 하단에 메서드 추가
+                email = getKakaoEmail(paramMap);
                 break;
         }
 
@@ -61,40 +57,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         log.info(email);
         log.info("===============================");
 
-
-
-        // 750 교체return super.loadUser(userRequest);
-        // 756 교체return oAuth2User;
-        return generateDTO(email, paramMap);  // 하단에 메서드 추가 필수
-
-        //org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest@2877d342
-        //NAME: kakao
-        //----------------------------------
-        //id : 314141246
-        //----------------------------------
-        //connected_at : 2024-03-28T02:25:50Z
-        //----------------------------------
-        //properties : {nickname=김기원}
-        //----------------------------------
+        return generateDTO(email, paramMap);
     }
-
-    private String getKakaoEmail(Map<String, Object> paramMap){  // 카카오 전용 코드  752 추가
-
-        log.info("KAKAO-----------------------------------------");
-
-        Object value = paramMap.get("kakao_account");
-
-        log.info(value);
-
-        LinkedHashMap accountMap = (LinkedHashMap) value;
-
-        String email = (String)accountMap.get("email");
-
-        log.info("email..." + email);
-
-        return email;
-    }
-
 
     private MemberSecurityDTO generateDTO(String email, Map<String, Object> params){
 
@@ -133,12 +97,25 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     );
 
             return memberSecurityDTO;
-
-            // 카카오 로그인으로 가입한 회원의 암호는 1111로 강제 적용 됨 -> 사옹자 정보를 일반 회원으로 수정하도록 해야 함.
         }
     }
 
 
+    private String getKakaoEmail(Map<String, Object> paramMap){
 
+        log.info("KAKAO-----------------------------------------");
+
+        Object value = paramMap.get("kakao_account");
+
+        log.info(value);
+
+        LinkedHashMap accountMap = (LinkedHashMap) value;
+
+        String email = (String)accountMap.get("email");
+
+        log.info("email..." + email);
+
+        return email;
+    }
 
 }

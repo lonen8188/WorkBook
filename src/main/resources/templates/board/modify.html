@@ -35,13 +35,12 @@
                             <input type="text" class="form-control" th:value="${dto.writer}" name="writer" readonly>
                         </div>
 
-                            <!--       669 추가 파일 업로드 버튼                 -->
-                            <div class="input-group mb-3">
-                                <span class="input-group-text">Images</span>
-                                <div class="float-end uploadHidden">
-                                    <button type="button" class="btn btn-primary uploadFileBtn">ADD Files</button>
-                                </div>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Images</span>
+                            <div class="float-end uploadHidden">
+                                <button type="button" class="btn btn-primary uploadFileBtn">ADD Files</button>
                             </div>
+                        </div>
 
                         <div class="input-group mb-3">
                             <span class="input-group-text">RegDate</span>
@@ -67,27 +66,27 @@
         </div><!-- end col-->
     </div><!-- end row-->
 
-    <!—- 665 첨부 파일 섬네일을 보여줄 부분 -->
+    <!—- 첨부 파일 섬네일을 보여줄 부분 -->
     <div class="row mt-3">
         <div class="col ">
             <div class="container-fluid d-flex uploadResult" style="flex-wrap: wrap;">
                 <th:block th:each="fileName:${dto.fileNames}">
-                    <div class="card col-4" th:with = "arr = ${fileName.split('_')}">
-                        <div class="card-header d-flex justify-content-center">
-                            [[${arr[1]}]]
-                            <button class="btn-sm btn-danger"
-                                    th:onclick="removeFile([[${arr[0]}]], [[${arr[1]}]], this)">X</button>
-                        </div>
-                        <div class="card-body">
-                            <img th:src="|/view/s_${fileName}|" th:data-src="${fileName}" >
-                        </div>
-                    </div><!-- card -->
+                <div class="card col-4" th:with = "arr = ${fileName.split('_')}">
+                    <div class="card-header d-flex justify-content-center">
+                        [[${arr[1]}]]
+                        <button class="btn-sm btn-danger"
+                                th:onclick="removeFile([[${arr[0]}]], [[${arr[1]}]], this)">X</button>
+                    </div>
+                    <div class="card-body">
+                        <img th:src="|/view/s_${fileName}|" th:data-src="${fileName}" >
+                    </div>
+                </div><!-- card -->
                 </th:block>
             </div>
         </div>
     </div>
 
-    <!—- 666 추가 첨부파일 추가를 위한 모달창 -->
+    <!—- 첨부파일 추가를 위한 모달창 -->
     <div class="modal uploadModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -108,11 +107,11 @@
         </div>
     </div><!-- register modal -->
 
-    <!--  669 추가  -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <script src="/js/upload.js"></script>
 
-</div>
+</div><!--end layout fragement-->
 
 <script layout:fragment="script" th:inline="javascript">
 
@@ -138,10 +137,11 @@
         e.stopPropagation()
 
         formObj.action = `/board/modify?${link}`
-        //첨부파일 추가 671
+
+        //첨부파일 추가
         appendFileData()
 
-        //삭제대상 파일들의 삭제 674
+        //삭제대상 파일들의 삭제
         callRemoveFiles()
 
         formObj.method ='post'
@@ -150,17 +150,58 @@
 
     }, false)
 
+    function appendFileData(){
+
+        const target = document.querySelector(".uploadHidden")
+        const uploadFiles = uploadResult.querySelectorAll("img")
+
+        let str = ''
+
+        for (let i = 0; i < uploadFiles.length ; i++) {
+            const uploadFile = uploadFiles[i]
+            const imgLink = uploadFile.getAttribute("data-src")
+
+            str += `<input type='hidden' name='fileNames' value="${imgLink}">`
+        }
+
+        target.innerHTML = str;
+
+    }
+
+    function appendNotShownData(){
+
+        if(removeFileList.length == 0){
+            return
+        }
+
+        const target = document.querySelector(".uploadHidden")
+        let str = ''
+
+        for (let i = 0; i < removeFileList.length ; i++) {
+
+            const {uuid, fileName} = removeFileList[i];
+
+            str += `<input type='hidden' name='fileNames' value="${uuid}_${fileName}">`
+        }
+        target.innerHTML += str;
+    }
+
+    function callRemoveFiles(){
+
+        removeFileList.forEach( ({uuid,fileName}) => {
+            removeFileToServer({uuid, fileName})
+        })
+    }
+
 
     document.querySelector(".removeBtn").addEventListener("click", function(e){
         e.preventDefault()
         e.stopPropagation()
 
-        //673 추가
         //화면에 보이는 파일들을 form태그에 추가
         appendFileData()
         //화면에서 안보이도록 처리된 파일들을 form태그에 추가
         appendNotShownData()
-
 
         formObj.action = `/board/remove`
         formObj.method ='post'
@@ -176,7 +217,7 @@
 
     }, false)
 
-    //최종적으로 삭제될 파일들의 목록  668
+    //최종적으로 삭제될 파일들의 목록
     const removeFileList = []
 
     function removeFile(uuid,fileName, obj){
@@ -196,7 +237,8 @@
         targetDiv.remove()
     }
 
-    // 670 추가 업로드 모달
+
+    //업로드 모달
     const uploadModal = new bootstrap.Modal(document.querySelector(".uploadModal"))
 
     document.querySelector(".uploadFileBtn").addEventListener("click", function(e){
@@ -251,54 +293,6 @@
 
         uploadResult.innerHTML += str
     }
-
-    // 672 추가 파일 수정 저장용
-    function appendFileData(){
-
-        const target = document.querySelector(".uploadHidden")
-        const uploadFiles = uploadResult.querySelectorAll("img")
-
-        let str = ''
-
-        for (let i = 0; i < uploadFiles.length ; i++) {
-            const uploadFile = uploadFiles[i]
-            const imgLink = uploadFile.getAttribute("data-src")
-
-            str += `<input type='hidden' name='fileNames' value="${imgLink}">`
-        }
-
-        target.innerHTML = str;
-
-    }
-
-    // 672 파일 삭제용
-    function callRemoveFiles(){
-
-        removeFileList.forEach( ({uuid,fileName}) => {
-            removeFileToServer({uuid, fileName})
-        })
-    }
-
-    // 674 추가
-    function appendNotShownData(){
-
-        if(removeFileList.length == 0){
-            return
-        }
-
-        const target = document.querySelector(".uploadHidden")
-        let str = ''
-
-        for (let i = 0; i < removeFileList.length ; i++) {
-
-            const {uuid, fileName} = removeFileList[i];
-
-            str += `<input type='hidden' name='fileNames' value="${uuid}_${fileName}">`
-        }
-        target.innerHTML += str;
-    }
-
-
 
 </script>
 

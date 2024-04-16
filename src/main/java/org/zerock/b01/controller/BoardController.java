@@ -2,8 +2,8 @@ package org.zerock.b01.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -18,10 +19,11 @@ import org.zerock.b01.dto.*;
 import org.zerock.b01.service.BoardService;
 
 import jakarta.validation.Valid;
-
 import java.io.File;
 import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/board")
@@ -29,39 +31,62 @@ import java.util.List;
 @RequiredArgsConstructor
 public class BoardController {
 
-    // import org.springframework.beans.factory.annotation.Value; 675 추가
-    @Value("${org.zerock.upload.path}")
+    @Value("${org.zerock.upload.path}")// import 시에 springframework으로 시작하는 Value
     private String uploadPath;
 
     private final BoardService boardService;
 
-    @GetMapping({"/","/list"})
+//    @GetMapping("/list")
+//    public void list(PageRequestDTO pageRequestDTO, Model model){
+//
+//        PageResponseDTO<BoardDTO> responseDTO = boardService.list(pageRequestDTO);
+//
+//        log.info(responseDTO);
+//
+//        model.addAttribute("responseDTO", responseDTO);
+//
+//    }
+
+//    @GetMapping("/list")
+//    public void list(PageRequestDTO pageRequestDTO, Model model){
+//
+//        //PageResponseDTO<BoardDTO> responseDTO = boardService.list(pageRequestDTO);
+//
+//        PageResponseDTO<BoardListReplyCountDTO> responseDTO =
+//                boardService.listWithReplyCount(pageRequestDTO);
+//
+//        log.info(responseDTO);
+//
+//        model.addAttribute("responseDTO", responseDTO);
+//    }
+
+
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/list")
     public void list(PageRequestDTO pageRequestDTO, Model model){
 
-        // 548 제거(댓글수 추가용) PageResponseDTO<BoardDTO> responseDTO = boardService.list(pageRequestDTO);
-        // 662 제거 PageResponseDTO<BoardListReplyCountDTO> responseDTO = boardService.listWithReplyCount(pageRequestDTO);
-        PageResponseDTO<BoardListAllDTO> responseDTO = boardService.listWithAll(pageRequestDTO);
-        // 662 ListAll로 교체
-                log.info(responseDTO);
+        //PageResponseDTO<BoardDTO> responseDTO = boardService.list(pageRequestDTO);
+
+        PageResponseDTO<BoardListAllDTO> responseDTO =
+                boardService.listWithAll(pageRequestDTO);
+
+        log.info(responseDTO);
 
         model.addAttribute("responseDTO", responseDTO);
-
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/register")
-    @PreAuthorize("hasRole('USER')") // 692 추가 (USER 권한이 있는 자만 접속)
     public void registerGET(){
 
     }
 
     @PostMapping("/register")
     public String registerPost(@Valid BoardDTO boardDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes){
-        // BindingResult : @Valid,  @ModelAttribute에 데이터 바인딩 오류가 발생할때 오류정보를 담는다.
-        // bindingResult가 없으면 400 오류가 발생하게 되고 Controller가 호출되지 않고 Error Page로 이동함.
 
         log.info("board POST register.......");
 
-        if(bindingResult.hasErrors()) { // 오류발생시 addFlashAttribute로 1회용 에러 메시지를 담고 전달한다.
+        if(bindingResult.hasErrors()) {
             log.info("has errors.......");
             redirectAttributes.addFlashAttribute("errors", bindingResult.getAllErrors() );
             return "redirect:/board/register";
@@ -72,7 +97,7 @@ public class BoardController {
         Long bno  = boardService.register(boardDTO);
 
         redirectAttributes.addFlashAttribute("result", bno);
-        // 정상 처리시 addFlashAttribute에 결과 정보를 bno를 담아 전달한다.
+
         return "redirect:/board/list";
     }
 
@@ -88,7 +113,8 @@ public class BoardController {
 //
 //    }
 
-    @PreAuthorize("isAuthenticated()") // 709 로그인한 사용자만 조회 (member, admin ....)
+
+    @PreAuthorize("isAuthenticated()")
     @GetMapping({"/read", "/modify"})
     public void read(Long bno, PageRequestDTO pageRequestDTO, Model model){
 
@@ -100,12 +126,13 @@ public class BoardController {
 
     }
 
-    @PreAuthorize("principal.username == #boardDTO.writer") // 714 추가 (작성자 일치)
+    @PreAuthorize("principal.username == #boardDTO.writer")
     @PostMapping("/modify")
-    public String modify( PageRequestDTO pageRequestDTO,
-                          @Valid BoardDTO boardDTO,
+    public String modify( @Valid BoardDTO boardDTO,
                           BindingResult bindingResult,
+                          PageRequestDTO pageRequestDTO,
                           RedirectAttributes redirectAttributes){
+
 
         log.info("board modify post......." + boardDTO);
 
@@ -131,7 +158,7 @@ public class BoardController {
     }
 
 
-//    @PostMapping("/remove")  675 교체 
+//    @PostMapping("/remove")
 //    public String remove(Long bno, RedirectAttributes redirectAttributes) {
 //
 //        log.info("remove post.. " + bno);
@@ -144,8 +171,9 @@ public class BoardController {
 //
 //    }
 
-    @PreAuthorize("principal.username == #boardDTO.writer") // 719 추가 작성자만 삭제
-    @PostMapping("/remove") // 675 교체
+
+    @PreAuthorize("principal.username == #boardDTO.writer")
+    @PostMapping("/remove")
     public String remove(BoardDTO boardDTO, RedirectAttributes redirectAttributes) {
 
         Long bno  = boardDTO.getBno();
@@ -167,10 +195,10 @@ public class BoardController {
     }
 
 
-    public void removeFiles(List<String> files){  //675 추가
+    public void removeFiles(List<String> files){
 
         for (String fileName:files) {
-            // import org.springframework.core.io.Resource
+
             Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
             String resourceName = resource.getFilename();
 
@@ -191,6 +219,4 @@ public class BoardController {
 
         }//end for
     }
-
-
 }

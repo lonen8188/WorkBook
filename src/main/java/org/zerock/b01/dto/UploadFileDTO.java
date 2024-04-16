@@ -1,4 +1,4 @@
-package org.zerock.b01.dto.upload;
+package org.zerock.b01.dto;
 
 
 import lombok.Data;

@@ -15,35 +15,32 @@ import org.zerock.b01.service.MemberService;
 @Log4j2
 @RequiredArgsConstructor
 public class MemberController {
+    private final MemberService memberService;
 
-    private final MemberService memberService; // 736 추가
-
-
-    @GetMapping("/login")
-    public void loginGET(String error, String logout) {
-        log.info("member/login get 메서드 호출..............");
-        log.info("logout: " + logout);
-
-        // 701 http://localhost/member/login?logout 으로 로그아웃 처리
-        if(logout != null) {
-            log.info("사용자 로그아웃.....");
-        }
-    }
-
-
-    @GetMapping("/join") // 731 추가
+    @GetMapping("/join")
     public void joinGET(){
+
         log.info("join get...");
+
     }
 
+//    @PostMapping("/join")
+//    public String joinPOST(MemberJoinDTO memberJoinDTO){
+//
+//        log.info("join post...");
+//        log.info(memberJoinDTO);
+//
+//        return "redirect:/board/list";
+//    }
+//
 
-    @PostMapping("/join") // 732 추가
-    public String joinPOST(MemberJoinDTO memberJoinDTO, RedirectAttributes redirectAttributes){ //737 추가, RedirectAttributes redirectAttributes
+    @PostMapping("/join")
+    public String joinPOST(MemberJoinDTO memberJoinDTO, RedirectAttributes redirectAttributes){
 
         log.info("join post...");
         log.info(memberJoinDTO);
 
-        try { // 737 추가
+        try {
             memberService.join(memberJoinDTO);
         } catch (MemberService.MidExistException e) {
 
@@ -53,11 +50,13 @@ public class MemberController {
 
         redirectAttributes.addFlashAttribute("result", "success");
 
-        // 737 변경 return "redirect:/board/list"; // 가입 후 리스트
         return "redirect:/member/login"; //회원 가입 후 로그인
     }
 
 
-
-
+    @GetMapping("/login")
+    public void loginGET(String error, String logout) {
+        log.info("login get..............");
+        log.info("logout: " + logout);
+    }
 }

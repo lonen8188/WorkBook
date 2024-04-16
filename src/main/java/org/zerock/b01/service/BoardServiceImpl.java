@@ -6,11 +6,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.zerock.b01.domain.Board;
 import org.zerock.b01.dto.*;
 import org.zerock.b01.repository.BoardRepository;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,34 +22,52 @@ import java.util.stream.Collectors;
 @Transactional
 public class BoardServiceImpl implements BoardService{
 
-    private final ModelMapper modelMapper; // DTO와 엔티티 변환을 해주는 객체
+    private final ModelMapper modelMapper;
 
-    private final BoardRepository boardRepository; // board CRUD용
+    private final BoardRepository boardRepository;
+
+//    @Override
+//    public Long register(BoardDTO boardDTO) {
+//
+//        Board board = modelMapper.map(boardDTO, Board.class);
+//
+//        Long bno = boardRepository.save(board).getBno();
+//
+//        return bno;
+//    }
 
     @Override
     public Long register(BoardDTO boardDTO) {
 
-        // 642 제거 Board board = modelMapper.map(boardDTO, Board.class);
-        Board board = dtoToEntity(boardDTO); // 642 교체
-        // ModelMapper 에서는 map(source, destination) 메소드가 호출되면 source와 destination
-        // 타입을 분석하여 매칭 전략 및 기타 설정값에 따라 일치하는 속성을 결정하여 매칭 항목에 대해 데이터를 매핑한다.
+        Board board = dtoToEntity(boardDTO);
 
-        // 642 제거 Long bno = boardRepository.save(board).getBno();
-        // save() JPA에서 없으면 Insert, 있으면 Update 진행
-        Long bno = boardRepository.save(board).getBno(); // 642 교체
+        Long bno = boardRepository.save(board).getBno();
 
         return bno;
     }
 
-    @Override  // 643 추가
+//    @Override
+//    public BoardDTO readOne(Long bno) {
+//
+//        Optional<Board> result = boardRepository.findById(bno);
+//
+//        Board board = result.orElseThrow();
+//
+//        BoardDTO boardDTO = modelMapper.map(board, BoardDTO.class);
+//
+//        return boardDTO;
+//    }
+
+    @Override
     public BoardDTO readOne(Long bno) {
 
-        //Optional<Board> result = boardRepository.findById(bno); // 644 교체
-        Optional<Board> result = boardRepository.findByIdWithImages(bno); // 644 교체
+        //board_image까지 조인 처리되는 findByWithImages()를 이용
+        Optional<Board> result = boardRepository.findByIdWithImages(bno);
+
         Board board = result.orElseThrow();
 
-        // BoardDTO boardDTO = modelMapper.map(board, BoardDTO.class); // 644 교체
-        BoardDTO boardDTO =entityToDTO(board); //644 교체
+        BoardDTO boardDTO = entityToDTO(board);
+
         return boardDTO;
     }
 
@@ -62,7 +80,7 @@ public class BoardServiceImpl implements BoardService{
 
         board.change(boardDTO.getTitle(), boardDTO.getContent());
 
-        //첨부파일의 처리 645 추가
+        //첨부파일의 처리
         board.clearImages();
 
         if(boardDTO.getFileNames() != null){
@@ -71,7 +89,6 @@ public class BoardServiceImpl implements BoardService{
                 board.addImage(arr[0], arr[1]);
             }
         }
-
 
         boardRepository.save(board);
 
@@ -134,8 +151,7 @@ public class BoardServiceImpl implements BoardService{
     }
 
     @Override
-    public PageResponseDTO<BoardListAllDTO> listWithAll(PageRequestDTO pageRequestDTO) {  // 634 추가
-        // 648 추가
+    public PageResponseDTO<BoardListAllDTO> listWithAll(PageRequestDTO pageRequestDTO) {
         String[] types = pageRequestDTO.getTypes();
         String keyword = pageRequestDTO.getKeyword();
         Pageable pageable = pageRequestDTO.getPageable("bno");
@@ -148,5 +164,6 @@ public class BoardServiceImpl implements BoardService{
                 .total((int)result.getTotalElements())
                 .build();
     }
+
 
 }

@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
       layout:decorate="~{layout/basic.html}">
-      <!-- 시큐리티 5버전 안됨 6버전으로 교체    -->
+
 <head>
   <title>Board Register</title>
 </head>
@@ -27,13 +26,12 @@
               <textarea class="form-control col-sm-5" rows="5" name="content"></textarea>
             </div>
 
-            <div class="input-group mb-3">
+            <div class="input-group mb-3" th:with="username=${#authentication.principal.username}">
               <span class="input-group-text">Writer</span>
-              <input type="text" name="writer" class="form-control" placeholder="Writer"
-                    th:value="${#authentication.principal.username}" readonly>
-                    <!--  작성자 로그인 이름으로 자동 입력  709 추가   -->
+              <input type="text" name="writer" class="form-control" placeholder="Writer" th:value="${username}">
+
             </div>
-            <!--/*   651 파일 추가 버튼          */-->
+
             <div class="input-group mb-3">
               <span class="input-group-text">Images</span>
               <div class="float-end uploadHidden">
@@ -44,10 +42,11 @@
             <div class="my-4">
               <div class="float-end">
                 <button type="submit" class="btn btn-primary submitBtn">Submit</button>
-                  <!--   submitBtn 추가             -->
                 <button type="reset" class="btn btn-secondary">Reset</button>
               </div>
             </div>
+
+
           </form>
         </div><!--end card body-->
 
@@ -55,7 +54,7 @@
     </div><!-- end col-->
   </div><!-- end row-->
 
-  <!—- 653 첨부 파일 섬네일을 보여줄 부분 -->
+  <!—- 첨부 파일 섬네일을 보여줄 부분 -->
   <div class="row mt-3">
     <div class="col ">
       <div class="container-fluid d-flex uploadResult" style="flex-wrap: wrap;">
@@ -63,7 +62,7 @@
     </div>
   </div>
 
-  <!—- 653 첨부파일 추가를 위한 모달창 -->
+  <!—- 첨부파일 추가를 위한 모달창 -->
   <div class="modal uploadModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -91,16 +90,11 @@
 </div><!-- layout fragment end -->
 
 
-
 <script layout:fragment="script" th:inline="javascript">
-  // @Valid 에러 메시지 출력용 (검증에 실패하면 다시 앞의 화면으로 이동
-  // public String registerPost(@Valid BoardDTO boardDTO, .....
-  // AddFlashAttribute()를 통해서 errors라는 이름으로 에러메시지들이 전송됨.
-  // list.html 에서 result 변수를 통해 모달창을 처리함.
 
-  // 708추가 타입리프에 시큐리지 적용
-  const auth = [[${#authentication}]] // .principal을 이용해서 정보를 사용한다.
-  // 결과 const auth = {"authorities":[{"authority":"ROLE_USER"}],"details":{"remoteAddress":"0:0:0:0:0:0:0:1","sessionId":null},"authenticated":true,"principal":{"password":null,"username":"USER1","authorities":[{"authority":"ROLE_USER"}],"accountNonExpired":true,"accountNonLocked":true,"credentialsNonExpired":true,"enabled":true},"credentials":null,"name":"USER1"}
+
+  const auth = [[${#authentication.principal}]]
+
 
   const errors = [[${errors}]]
   console.log(errors)
@@ -114,18 +108,18 @@
     alert(errorMsg)
   }
 
-  //업로드 모달 654
+  //업로드 모달
   const uploadModal = new bootstrap.Modal(document.querySelector(".uploadModal"))
 
   document.querySelector(".uploadFileBtn").addEventListener("click", function(e){
-    //uploadFileBtn 클릭시 모달창만  보임
+
     e.stopPropagation()
     e.preventDefault()
     uploadModal.show()
 
   }, false)
 
-  // 655 추가 모달창에 업로드 버튼 클릭시 동작
+
   document.querySelector(".uploadBtn").addEventListener("click", function(e){
 
     const formObj = new FormData();
@@ -139,7 +133,7 @@
     for (let i = 0; i < files.length; i++) {
       formObj.append("files", files[i]);
     }
-    // FormData 객체를 이용해 파일 정보를 추가하고 upload.js에 정의한 uploadToServer()를 호출
+
 
     uploadToServer(formObj).then(result => {
       console.log(result)
@@ -154,7 +148,7 @@
 
   },false)
 
-  const uploadResult = document.querySelector(".uploadResult") // 656 추가
+  const uploadResult = document.querySelector(".uploadResult")
 
   function showUploadFile({uuid, fileName, link}){
 
@@ -169,9 +163,9 @@
         </div><!-- card -->`
 
     uploadResult.innerHTML += str
-  }  // 첨부파일 표시용
+  }
 
-  // 657 추가 (첨부파일 삭제용)
+
   function removeFile(uuid,fileName, obj){
 
     console.log(uuid)
@@ -185,7 +179,7 @@
       targetDiv.remove()
     })
   }
-  // 659 추가 submit 버튼 클릭시 작동
+
   document.querySelector(".submitBtn").addEventListener("click", function(e){
 
     e.preventDefault()
@@ -199,19 +193,21 @@
 
     for (let i = 0; i < uploadFiles.length ; i++) {
       const uploadFile = uploadFiles[i]
-      const imgLink = uploadFile.getAttribute("data-src") // db에 안되서 추가 함. data-
+      const imgLink = uploadFile.getAttribute("data-src")
 
       str += `<input type='hidden' name='fileNames' value="${imgLink}">`
     }
 
     target.innerHTML = str;
 
-    // document.querySelector("form").submit();
     const formObj = document.querySelector("form");
 
     formObj.submit();
     formObj.reset();
 
   }, false)
+
+
+
 
 </script>
