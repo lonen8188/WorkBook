@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BoardImageDTO { // 이미지 엔티티를 처리함
+
+
     private String uuid;
 
     private String fileName;

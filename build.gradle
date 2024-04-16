@@ -68,6 +68,16 @@ dependencies {
     // 섬내일 추가 603
     implementation 'net.coobird:thumbnailator:0.4.16'
 
+    // 스프링 시큐리티 시작용 678
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    // 707 추가 부트 3이상 부터는 6 사용 함 https://mvnrepository.com/artifact/org.thymeleaf.extras/thymeleaf-extras-springsecurity6
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.1.RELEASE'
+
+    // 743 추가 외부 인증용 카카오, 구글,  네이버 등....
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // 카카오톡 참고 https://developers.kakao.com/docs/latest/ko/kakaologin/common
+
+
 }
 
 tasks.named('test') {

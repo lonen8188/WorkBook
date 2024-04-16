@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -34,7 +35,7 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @GetMapping("/list")
+    @GetMapping({"/","/list"})
     public void list(PageRequestDTO pageRequestDTO, Model model){
 
         // 548 제거(댓글수 추가용) PageResponseDTO<BoardDTO> responseDTO = boardService.list(pageRequestDTO);
@@ -48,6 +49,7 @@ public class BoardController {
     }
 
     @GetMapping("/register")
+    @PreAuthorize("hasRole('USER')") // 692 추가 (USER 권한이 있는 자만 접속)
     public void registerGET(){
 
     }
@@ -86,7 +88,7 @@ public class BoardController {
 //
 //    }
 
-
+    @PreAuthorize("isAuthenticated()") // 709 로그인한 사용자만 조회 (member, admin ....)
     @GetMapping({"/read", "/modify"})
     public void read(Long bno, PageRequestDTO pageRequestDTO, Model model){
 
@@ -98,6 +100,7 @@ public class BoardController {
 
     }
 
+    @PreAuthorize("principal.username == #boardDTO.writer") // 714 추가 (작성자 일치)
     @PostMapping("/modify")
     public String modify( PageRequestDTO pageRequestDTO,
                           @Valid BoardDTO boardDTO,
@@ -141,7 +144,7 @@ public class BoardController {
 //
 //    }
 
-
+    @PreAuthorize("principal.username == #boardDTO.writer") // 719 추가 작성자만 삭제
     @PostMapping("/remove") // 675 교체
     public String remove(BoardDTO boardDTO, RedirectAttributes redirectAttributes) {
 

@@ -4,7 +4,14 @@
       layout:decorate="~{layout/basic.html}">
 <!--/*     상단에 layout:decorator="~{layout/layout}" 은 기본 레이아웃을 layout/layout.html 파일을 사용하겠다라는 선언하는 것 입니다.*/-->
 <div layout:fragment="content">
-
+    <h1 class="mt-4">Board List Page
+        <span>
+                <a th:href="@{/board/register}">
+                    <button type="button" class="btn btn-outline-primary">REGISTER
+                    </button>
+                </a>
+            </span>
+    </h1>
     <div class="row mt-3">
         <form action="/board/list" method="get">
             <div class="col">

@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
       layout:decorate="~{layout/basic.html}">
-
+      <!-- 시큐리티 5버전 안됨 6버전으로 교체    -->
 <head>
   <title>Board Register</title>
 </head>
@@ -28,7 +29,9 @@
 
             <div class="input-group mb-3">
               <span class="input-group-text">Writer</span>
-              <input type="text" name="writer" class="form-control" placeholder="Writer">
+              <input type="text" name="writer" class="form-control" placeholder="Writer"
+                    th:value="${#authentication.principal.username}" readonly>
+                    <!--  작성자 로그인 이름으로 자동 입력  709 추가   -->
             </div>
             <!--/*   651 파일 추가 버튼          */-->
             <div class="input-group mb-3">
@@ -94,6 +97,11 @@
   // public String registerPost(@Valid BoardDTO boardDTO, .....
   // AddFlashAttribute()를 통해서 errors라는 이름으로 에러메시지들이 전송됨.
   // list.html 에서 result 변수를 통해 모달창을 처리함.
+
+  // 708추가 타입리프에 시큐리지 적용
+  const auth = [[${#authentication}]] // .principal을 이용해서 정보를 사용한다.
+  // 결과 const auth = {"authorities":[{"authority":"ROLE_USER"}],"details":{"remoteAddress":"0:0:0:0:0:0:0:1","sessionId":null},"authenticated":true,"principal":{"password":null,"username":"USER1","authorities":[{"authority":"ROLE_USER"}],"accountNonExpired":true,"accountNonLocked":true,"credentialsNonExpired":true,"enabled":true},"credentials":null,"name":"USER1"}
+
   const errors = [[${errors}]]
   console.log(errors)
 

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6" xmlns="http://www.w3.org/1999/html"
       layout:decorate="~{layout/basic.html}">
 <!--상단에 layout:decorator="~{layout/layout}" 은 기본 레이아웃을 layout/layout.html 파일을 사용하겠다라는 선언하는 것 입니다.-->
 <head>
@@ -43,14 +44,17 @@
                         <input type="text" class="form-control" th:value="${#temporals.format(dto.modDate, 'yyyy-MM-dd HH:mm:ss')}" readonly>
                     </div>
 
-                    <div class="my-4">
+                                <!--  th:with="user=${#authentication.principal} 711 추가 작성 자가 같은 경우에 수정 버튼 보임 -->
+                    <div class="my-4" th:with="user=${#authentication.principal}">
                         <div class="float-end" th:with="link = ${pageRequestDTO.getLink()}">
                             <!--                                 page=1&size=10 -->
                             <a th:href="|@{/board/list}?${link}|" class="text-decoration-none">
                             <!--            board/list?page=1&size=10-->
                                 <button type="button" class="btn btn-primary">List</button>
                             </a>
-                            <a th:href="|@{/board/modify(bno=${dto.bno})}&${link}|" class="text-decoration-none">
+                            <!-- 711 추가 사용자가 널이 아니거나, 작성자와 일치하면   -->
+                            <a th:if="${user!= null && user.username == dto.writer} "
+                                    th:href="|@{/board/modify(bno=${dto.bno})}&${link}|" class="text-decoration-none">
                             <!--           /board/modify?bno=100&page=1&size=10-->
                                 <button type="button" class="btn btn-secondary">Modify</button>
                             </a>
@@ -103,9 +107,11 @@
                         <span class="input-group-text">Reply Text</span>
                         <input type="text" class="form-control replyText" >
                     </div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">Replyer</span>
-                        <input type="text" class="form-control replyer" >
+                    <!--       댓글 사용자 자동 기입용             -->
+                    <div class="input-group mb-3" th:with="user=${#authentication.principal}">
+                        <span class="input-group-text"Replyer</span>
+                        <!--     시큐리티에서 사용자 값 적용                    -->
+                        <input type="text" class="form-control replyer" th:value="${user.username}" readonly>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -151,7 +157,8 @@
     // 댓글 axios Ajax 추가 설정 569
     const bno = [[${dto.bno}]]
 
-
+    // 712 추가 로그인한 사용자 활용
+    const currentUser = [[${#authentication.principal.username}]]
 
     // 574 제외 get1(bno)  // 콘솔에서 data 안쪽에서 댓글 목록을 확인 할 수 있음. (dtoList: Array)
     // 575 제외 console.log(get1(bno))
@@ -321,6 +328,10 @@
     const removeBtn = document.querySelector(".removeBtn")
     const closeModifyBtn = document.querySelector(".closeModifyBtn")
 
+    // 712 추가 댓글 버튼 시큐리티 적용
+    let hasAuth = false // 댓글 작성자와 currentUset 일치 여부 판단용
+
+
     // 590 특정 댓글을 눌렀을 때 모달창을 보여주는 모달
     replyList.addEventListener("click", function (e){
 
@@ -346,12 +357,21 @@
             modifyText.value = reply.replyText
             modifyModal.show()
 
+            hasAuth = currentUser === reply.replyer // 댓글의 작성자와 일치 여부 확인 712 추가
+
         }).catch(e => alert('error'))
 
     },false)
 
     // 591 modifyBtn 클릭했을 때 이벤트 처리
     modifyBtn.addEventListener("click", function(e) {
+
+        // 713 추가 댓글 수정 버튼 눌렸을 때 사용자 명 확인
+        if(!hasAuth){
+            alert("댓글 작성자만 수정이 가능합니다.")
+            modifyModal.hide()
+            return
+        }
 
         const replyObj = {
             bno:bno,
@@ -368,6 +388,7 @@
             console.log(e)
         })
     },false)
+
     closeModifyBtn.addEventListener("click", function(e){
 
         modifyModal.hide()
@@ -377,6 +398,12 @@
     // removeBtn을 눌렀을 때 이벤트 처리 593
     removeBtn.addEventListener("click", function(e) {
 
+        // 713 추가 댓글 수정 버튼 눌렸을 때 사용자 명 확인
+        if(!hasAuth){
+            alert("댓글 작성자만 삭제가 가능합니다.")
+            modifyModal.hide()
+            return
+        }
         removeReply(replyHeader.innerHTML).then(result => {
 
             alert(result.rno +' 댓글이 삭제되었습니다.')
