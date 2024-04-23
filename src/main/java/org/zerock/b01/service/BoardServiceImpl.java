@@ -85,7 +85,12 @@ public class BoardServiceImpl implements BoardService{
 
         if(boardDTO.getFileNames() != null){
             for (String fileName : boardDTO.getFileNames()) {
-                String[] arr = fileName.split("_");
+                // 파일명에 _이 있으면 오류 발생 함 String[] arr = fileName.split("_");
+
+                int lastIndex = fileName.lastIndexOf("_"); // 마지막 언더스코어의 인덱스를 찾음
+                String[] arr = {fileName.substring(0, lastIndex), fileName.substring(lastIndex + 1)}; // 파일 이름을 언더스코어 앞뒤로 나눠 배열에 저장
+
+
                 board.addImage(arr[0], arr[1]);
             }
         }

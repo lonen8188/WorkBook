@@ -61,6 +61,14 @@ public class CustomSecurityConfig {
 
         });
 
+        http.authorizeHttpRequests(authorizeHttpRequests -> {
+            authorizeHttpRequests
+                    .requestMatchers("/css/**", "/js/**", "/assets/**").permitAll()
+                    .requestMatchers("/", "/board/**", "/member/**").permitAll()
+                    //.requestMatchers("/admin/**").hasRole("ADMIN")
+                    .anyRequest().authenticated();
+        })  ;
+
         http.csrf(httpSecurityCsrfConfigurer ->  httpSecurityCsrfConfigurer.disable() );
         http.logout(httpSecurityLogoutConfigurer -> httpSecurityLogoutConfigurer.logoutUrl("/logout"));
 

@@ -52,6 +52,7 @@ public class UpDownController {
                 log.info(originalName);
 
                 String uuid = UUID.randomUUID().toString();
+                // 파일명이 너무 길어 뒤에가 잘리는 오류 발생
 
                 Path savePath = Paths.get(uploadPath, uuid+"_"+ originalName);
 

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/board")
+@RequestMapping({"/", "/board"})
 @Log4j2
 @RequiredArgsConstructor
 public class BoardController {
@@ -61,8 +61,8 @@ public class BoardController {
 //    }
 
 
-    @PreAuthorize("hasRole('USER')")
-    @GetMapping("/list")
+
+    @GetMapping({"/", "/list"})
     public void list(PageRequestDTO pageRequestDTO, Model model){
 
         //PageResponseDTO<BoardDTO> responseDTO = boardService.list(pageRequestDTO);
